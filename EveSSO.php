@@ -19,12 +19,85 @@ class Hybrid_Providers_EveSSO extends Hybrid_Provider_Model_OAuth2
         function initialize()
         {
                 parent::initialize();
-
+                error_log("test init");
                 // Provider api end-points
                 $this->api->api_base_url  = "https://login.eveonline.com/oauth/";
                 $this->api->authorize_url = "https://login.eveonline.com/oauth/authorize";
                 $this->api->token_url     = "https://login.eveonline.com/oauth/token";
         }
+
+
+
+        function loginFinish()
+        {
+                $error = (array_key_exists('error',$_REQUEST))?$_REQUEST['error']:"";
+
+                // check for errors
+                if ( $error ){
+                        throw new Exception( "Authentication failed! {$this->providerId} returned an error: " . htmlentities( $error ), 5 );
+                }
+
+                // try to authenticate user
+                $code = (array_key_exists('code',$_REQUEST))?$_REQUEST['code']:"";
+
+                try{
+                        $this->authenticate( $code );
+                }
+                catch( Exception $e ){
+                        throw new Exception( "Authentication failed! {$this->providerId} returned an error", 5 );
+                }
+
+                // check if authenticated
+                if ( ! $this->api->access_token ){
+                        throw new Exception( "Authentication failed! {$this->providerId} returned an invalid access_token", 5 );
+                }
+
+                // store tokens
+                $this->token( "access_token" , $this->api->access_token  );
+                $this->token( "refresh_token", $this->api->refresh_token );
+                $this->token( "expires_in"   , $this->api->access_token_expires_in );
+                $this->token( "expires_at"   , $this->api->access_token_expires_at );
+
+                // set user connected locally
+                $this->setUserConnected();
+        }
+
+        function authenticate( $code )
+        {
+                $params = array(
+                        "client_id"     => $this->api->client_id,
+                        "grant_type"    => "authorization_code",
+                        "redirect_uri"  => $this->api->redirect_uri,
+                        "code"          => $code
+                );
+
+                $http_headers = array();
+                $http_headers['Authorization'] = 'Basic ' . base64_encode( $this->api->client_id .  ':' . $this->api->client_secret);
+
+                $response = $this->request( $this->api->token_url, http_build_query($params, '', '&'), 'POST', $http_headers );
+
+                $response = $this->parseRequestResult( $response );
+
+                if( ! $response || ! isset( $response->access_token ) ){
+                        throw new Exception( "The Authorization Service has return: " . $response->error );
+                }
+
+                if( isset( $response->access_token  ) ) $this->api->access_token            = $response->access_token;
+                if( isset( $response->refresh_token ) ) $this->api->refresh_token           = $response->refresh_token;
+                if( isset( $response->expires_in    ) ) $this->api->access_token_expires_in = $response->expires_in;
+
+                // calculate when the access token expire
+                if( isset( $response->expires_in ) ) {
+                        $this->api->access_token_expires_at = time() + $response->expires_in;
+                }
+                else {
+                    $this->api->access_token_expires_at = time() + 3600;
+                }
+
+                return $response;
+        }
+
+
 
 
         private function request( $url, $params = array(), $type="GET", $http_headers = null )
@@ -71,7 +144,6 @@ class Hybrid_Providers_EveSSO extends Hybrid_Provider_Model_OAuth2
                 $this->http_info = array_merge($this->http_info, curl_getinfo($ch));
 
                 curl_close ($ch);
-
                 return $response;
         }
         private function parseRequestResult( $result )
