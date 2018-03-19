@@ -19,7 +19,6 @@ class Hybrid_Providers_EveSSO extends Hybrid_Provider_Model_OAuth2
         function initialize()
         {
                 parent::initialize();
-                error_log("test init");
                 // Provider api end-points
                 $this->api->api_base_url  = "https://login.eveonline.com/oauth/";
                 $this->api->authorize_url = "https://login.eveonline.com/oauth/authorize";
@@ -175,7 +174,14 @@ class Hybrid_Providers_EveSSO extends Hybrid_Provider_Model_OAuth2
                         throw new Exception( "User profile request failed! {$this->providerId} returned an invalid response.", 6 );
                 }
 
+                $names=explode(" ",$response->CharacterName);
+                $lastname=array_pop($names);
+                $firstname=join(" ",$names);
+
                 $this->user->profile->identifier  = @ $response->CharacterID;
+                $this->user->profile->displayName = @ $response->CharacterName;
+                $this->user->profile->firstName = $firstname;
+                $this->user->profile->lastName = $lastname;
                 $this->user->profile->displayName = @ $response->CharacterName;
                 $this->user->profile->profileURL  = "https://forums.eveonline.com/profile/".urlencode($response->CharacterName);
                 $this->user->profile->photoURL  = "https://image.eveonline.com/character/".$response->CharacterID."_64.jpg";
