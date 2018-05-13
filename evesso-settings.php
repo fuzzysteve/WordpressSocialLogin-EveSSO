@@ -18,7 +18,7 @@ class Evesso_Settings_Plugin {
 
     public function create_plugin_settings_page() {
         // Add the menu item and page
-        $page_title = 'EveSSO Settings PAge';
+        $page_title = 'EveSSO Settings Page';
         $menu_title = 'EveSSO Settings';
         $capability = 'manage_options';
         $slug = 'Evesso_fields';
