@@ -63,6 +63,9 @@ class Hybrid_Providers_EveSSO extends Hybrid_Provider_Model_OAuth2
 
         function authenticate( $code )
         {
+                error_log(getcwd());
+                require( '../../../../wp-load.php' );
+
                 $params = array(
                         "client_id"     => $this->api->client_id,
                         "grant_type"    => "authorization_code",
@@ -92,6 +95,43 @@ class Hybrid_Providers_EveSSO extends Hybrid_Provider_Model_OAuth2
                 else {
                     $this->api->access_token_expires_at = time() + 3600;
                 }
+
+                // Get the various character details.
+                $http_headers = array();
+                $http_headers['Authorization'] = 'Bearer ' . $this->api->access_token;
+                $restriction = $this->request( $this->api->api_base_url."/verify", array(), 'GET', $http_headers );
+                $restriction = $this->parseRequestResult( $restriction );
+                $characterid = $restriction->CharacterID;
+                $restriction = $this->request( "https://esi.evetech.net/latest/characters/".$characterid."/", array(), 'GET', $http_headers );
+                $restriction = $this->parseRequestResult( $restriction );
+                $allowed_corporations = str_replace(' ','',get_option("allowed_corporations",""));
+                $allowed_alliances = str_replace(' ','',get_option("allowed_alliances",""));
+                $allowed_characters = str_replace(' ','',get_option("allowed_characters",""));
+                $allallowed=get_option("allowed_all",true);
+                $allowed_corporations=explode(",",$allowed_corporations);
+                $allowed_alliances=explode(",",$allowed_alliances);
+                $allowed_characters=explode(",",$allowed_characters);
+                error_log("Character:".$characterid);
+                error_log("corporation:".$restriction->corporation_id);
+                error_log("allowed corp:".json_encode($allowed_corporations));
+                error_log("allowed alliance:".json_encode($allowed_alliances));
+                error_log("allowed char:".json_encode($allowed_characters));
+                $allowed=0;
+                if ($allallowed) {
+                    $allowed=1;
+                } elseif (in_array($characterid, $allowed_characters)) {
+                    $allowed=2;
+                } elseif (isset($restriction->alliance_id) && in_array($restriction->alliance_id, $allowed_alliances)) {
+                    $allowed=3;
+                } elseif (in_array($restriction->corporation_id, $allowed_corporations)) {
+                    $allowed=4;
+                }
+                error_log($allowed);
+
+                if ($allowed == 0) {
+                        throw new Exception( "The Character is not in a permitted list" );
+                }
+
 
                 return $response;
         }
@@ -184,7 +224,7 @@ class Hybrid_Providers_EveSSO extends Hybrid_Provider_Model_OAuth2
                 $this->user->profile->lastName = $lastname;
                 $this->user->profile->displayName = @ $response->CharacterName;
                 $this->user->profile->profileURL  = "https://forums.eveonline.com/profile/".urlencode($response->CharacterName);
-                $this->user->profile->photoURL  = "https://image.eveonline.com/character/".$response->CharacterID."_64.jpg";
+                $this->user->profile->photoURL  = "https://image.eveonline.com/character/".$response->CharacterID."_128.jpg";
 
                 if( $this->user->profile->identifier ){
                         return $this->user->profile;
