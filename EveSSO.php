@@ -111,11 +111,6 @@ class Hybrid_Providers_EveSSO extends Hybrid_Provider_Model_OAuth2
                 $allowed_corporations=explode(",",$allowed_corporations);
                 $allowed_alliances=explode(",",$allowed_alliances);
                 $allowed_characters=explode(",",$allowed_characters);
-                error_log("Character:".$characterid);
-                error_log("corporation:".$restriction->corporation_id);
-                error_log("allowed corp:".json_encode($allowed_corporations));
-                error_log("allowed alliance:".json_encode($allowed_alliances));
-                error_log("allowed char:".json_encode($allowed_characters));
                 $allowed=0;
                 if ($allallowed) {
                     $allowed=1;
@@ -126,7 +121,6 @@ class Hybrid_Providers_EveSSO extends Hybrid_Provider_Model_OAuth2
                 } elseif (in_array($restriction->corporation_id, $allowed_corporations)) {
                     $allowed=4;
                 }
-                error_log($allowed);
 
                 if ($allowed == 0) {
                         throw new Exception( "The Character is not in a permitted list" );
