@@ -30,7 +30,7 @@ class Evesso_Settings_Plugin {
     }
 
     public function plugin_settings_page_content() {
-        if( $_POST['updated'] === 'true' ){
+        if( isset($_POST['updated']) and $_POST['updated'] === 'true' ){
             $this->handle_form();
         } ?>
         <div class="wrap">
@@ -54,7 +54,7 @@ class Evesso_Settings_Plugin {
                         </tr>
                         <tr>
                             <th><label for="allapproved">All Approved</label></th>
-                            <td><input name="allapproved" id="allapproved" type="checkbox" <? if (get_option('allowed_all') == true) { print "checked"; } ?> /></td>
+                            <td><input name="allapproved" id="allapproved" type="checkbox" <?php if (get_option('allowed_all') == true) { print "checked"; } ?> /></td>
                         </tr>
                     </tbody>
                 </table>
