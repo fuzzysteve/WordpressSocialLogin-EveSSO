@@ -200,7 +200,7 @@ class Hybrid_Providers_EveSSO extends Hybrid_Provider_Model_OAuth2
                 $http_headers = array();
                 $http_headers['Authorization'] = 'Bearer ' . $this->api->access_token;
 
-                $response = $this->request( $this->api->api_base_url."/verify", array(), 'GET', $http_headers );
+                $response = $this->request( $this->api->api_base_url."verify", array(), 'GET', $http_headers );
 
                 $response = $this->parseRequestResult( $response );
 
