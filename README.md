@@ -8,7 +8,22 @@ https://wordpress.org/plugins/wordpress-social-login/
 Provided with no warranty
 
 
+There are now two versions of this. The older one for the older version of the plugin, and the newer one.
 
+new version
+drop Eveonline.php  from newversion/Providers into wp-content/plugins//wordpress-social-login/hybridauth/library/src/Provider/Eveonline.php
+drop eveonline.php from newversion/callback into wp-content/plugins/wordpress-social-login/hybridauth/callbacks/eveonline.php
+add the provider in wsl.providers addition to wp-content/plugins/wordpress-social-login/includes/settings/wsl.providers.php
+add evesso-settings.php from newversion into wp-content/plugins
+
+Then turn it on. you'll need to fill the details in from developers.eveonline.com where you'll have created a new application.
+
+to make setting changes, toggle the allow all on, save it, then toggle it off and save it again.. Otherwise it doesn't actually have a setting. 
+
+
+
+
+Old version
 
 Add the details in wsl.providers.php to the file with the same name in wp-content/plugins/wordpress-social-login/includes/settings
 
