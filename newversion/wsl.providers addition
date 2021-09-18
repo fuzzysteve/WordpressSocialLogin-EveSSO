@@ -1,0 +1,7 @@
+        ARRAY(
+                "provider_id"       => "Eveonline",
+                "provider_name"     => "Eve Online",
+                "require_client_id" => true,
+                "callback"          => true,
+                "new_app_link"      => "https://developers.eveonline.com/applications/",
+        ),
