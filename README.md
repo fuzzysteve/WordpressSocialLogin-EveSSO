@@ -10,7 +10,7 @@ Provided with no warranty
 
 There are now two versions of this. The older one for the older version of the plugin, and the newer one.
 
-new version
+New version
 ===========
 drop Eveonline.php  from newversion/Providers into wp-content/plugins//wordpress-social-login/hybridauth/library/src/Provider/Eveonline.php
 
