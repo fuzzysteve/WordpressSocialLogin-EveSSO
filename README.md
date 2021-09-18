@@ -12,7 +12,7 @@ There are now two versions of this. The older one for the older version of the p
 
 New version
 ===========
-drop Eveonline.php  from newversion/Providers into wp-content/plugins//wordpress-social-login/hybridauth/library/src/Provider/Eveonline.php
+drop Eveonline.php  from newversion/Providers into wp-content/plugins/wordpress-social-login/hybridauth/library/src/Provider/Eveonline.php
 
 drop eveonline.php from newversion/callback into wp-content/plugins/wordpress-social-login/hybridauth/callbacks/eveonline.php
 
